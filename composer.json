@@ -1,0 +1,25 @@
+{
+    "name": "graywrk/gendiff",
+    "bin": [
+            "bin/gendiff"
+           ],
+    "description": "Generate Difference between files",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Serj Dmitriev",
+            "email": "graywrk@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "GenDiff\\": "src/"
+        },
+        "files": []
+    },
+    "scripts": {
+        "phpcs": "phpcs"
+    },
+    "require": {"docopt/docopt": "*"},
+    "require-dev": {"squizlabs/php_codesniffer": "*"}
+}
