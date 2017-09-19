@@ -2,8 +2,6 @@
 
 namespace Differ;
 
-use Symfony\Component\Yaml\Yaml;
-
 function genDiff($reportFormat, $pathToFile1, $pathToFile2)
 {
     if (!file_exists($pathToFile1)) {
@@ -38,10 +36,10 @@ function genDiff($reportFormat, $pathToFile1, $pathToFile2)
         }
     }
 
-    return makeReport($reportFormat, $diff);
+    return buildReport($reportFormat, $diff);
 }
 
-function makeReport($reportFormat, $diff)
+function buildReport($reportFormat, $diff)
 {
     if (!in_array($reportFormat, array('pretty'))) {
         throw new \InvalidArgumentException("Unknown report format: " . $reportFormat . "!");
@@ -52,13 +50,13 @@ function makeReport($reportFormat, $diff)
         foreach ($diff as $item) {
             switch ($item['state']) {
                 case 'UNCHANGED':
-                    $report .= "    ";
+                    $report .= str_repeat(' ', 4);
                     break;
                 case 'ADDED':
-                    $report .= "  + ";
+                    $report .= str_repeat(' ', 2) . '+ ';
                     break;
                 case 'DELETED':
-                    $report .= "  - ";
+                    $report .= str_repeat(' ', 2) .  '- ';
                     break;
             }
             $report .= $item['key'] . ": " . $item['value'] . "\n";
@@ -82,16 +80,7 @@ function convertToString($value)
 function getDataFromFile($pathToFile)
 {
     $extension = pathinfo($pathToFile, PATHINFO_EXTENSION);
-    switch ($extension) {
-        case 'yml':
-            $data = Yaml::parse(file_get_contents($pathToFile));
-            break;
-        case 'json':
-            $data = json_decode(file_get_contents($pathToFile), true);
-            break;
-        default:
-            throw new Exception("Unknown file format");
-    }
+    $fileContent = file_get_contents($pathToFile);
 
-    return $data;
+    return parser($extension, $fileContent);
 }

@@ -16,7 +16,7 @@
             "GenDiff\\": "src/",
             "GenDiff\\Tests\\": "tests"
         },
-        "files": ["src/Differ.php"]
+        "files": ["src/Differ.php", "src/parsers.php"]
     },
     "scripts": {
         "phpcs": "phpcs",
