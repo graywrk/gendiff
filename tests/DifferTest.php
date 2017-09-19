@@ -3,16 +3,16 @@
 namespace Differ\Tests;
 
 use \PHPUnit\Framework\TestCase;
-use \Differ\Differ;
+use \Differ\genDiff;
 
 class DifferTest extends TestCase
 {
     /**
      * @expectedException \InvalidArgumentException
     */
-    public function testGenDiffWithUnknownFormat()
+    public function testGenDiffWithUnknownReportFormat()
     {
-        Differ::genDiff('BIN', 'file1', 'file2');
+        \Differ\genDiff('BIN', __DIR__ . '/fixtures/before.json', __DIR__ . '/fixtures/after.json');
     }
 
     /**
@@ -20,13 +20,13 @@ class DifferTest extends TestCase
     */
     public function testGenDiffWithNotExistingFiles()
     {
-        Differ::genDiff('JSON', 'file1', 'file2');
+        \Differ\genDiff('JSON', 'file1', 'file2');
     }
 
     public function testGenDiffWithSampleJsonFiles()
     {
-        $beforeJsonFilePath = "./fixtures/before.json";
-        $afterJsonFilePath = "./fixtures/after.json";
+        $beforeJsonFilePath = __DIR__ . "/fixtures/before.json";
+        $afterJsonFilePath = __DIR__ . "/fixtures/after.json";
 
         $fileDifference = <<<EOL
 {
@@ -37,6 +37,6 @@ class DifferTest extends TestCase
   + verbose: true
 }
 EOL;
-        $this->assertEquals($fileDifference, Differ::genDiff('JSON', $beforeJsonFilePath, $afterJsonFilePath));
+        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
     }
 }
