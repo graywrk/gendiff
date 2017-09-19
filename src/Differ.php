@@ -2,6 +2,8 @@
 
 namespace Differ;
 
+use Symfony\Component\Yaml\Yaml;
+
 function genDiff($reportFormat, $pathToFile1, $pathToFile2)
 {
     if (!file_exists($pathToFile1)) {
@@ -12,8 +14,8 @@ function genDiff($reportFormat, $pathToFile1, $pathToFile2)
         throw new \InvalidArgumentException("File " . $pathToFile2 . " not exist!");
     }
 
-    $data1 = json_decode(file_get_contents($pathToFile1), true);
-    $data2 = json_decode(file_get_contents($pathToFile2), true);
+    $data1 = getDataFromFile($pathToFile1);
+    $data2 = getDataFromFile($pathToFile2);
 
     $diff = array();
 
@@ -75,4 +77,21 @@ function convertToString($value)
     }
 
     return $value;
+}
+
+function getDataFromFile($pathToFile)
+{
+    $extension = pathinfo($pathToFile, PATHINFO_EXTENSION);
+    switch ($extension) {
+        case 'yml':
+            $data = Yaml::parse(file_get_contents($pathToFile));
+            break;
+        case 'json':
+            $data = json_decode(file_get_contents($pathToFile), true);
+            break;
+        default:
+            throw new Exception("Unknown file format");
+    }
+
+    return $data;
 }

@@ -39,4 +39,21 @@ class DifferTest extends TestCase
 EOL;
         $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
     }
+
+    public function testGenDiffWithSampleYamlFiles()
+    {
+        $beforeJsonFilePath = __DIR__ . "/fixtures/before.yml";
+        $afterJsonFilePath = __DIR__ . "/fixtures/after.yml";
+
+        $fileDifference = <<<EOL
+{
+    host: hexlet.io
+  + timeout: 20
+  - timeout: 50
+  - proxy: 123.234.53.22
+  + verbose: true
+}
+EOL;
+        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
+    }
 }
