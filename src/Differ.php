@@ -4,19 +4,8 @@ namespace Differ;
 
 use Funct\Collection;
 
-function genDiff($reportFormat, $pathToFile1, $pathToFile2)
+function genDiff($reportFormat, $data1, $data2)
 {
-    if (!file_exists($pathToFile1)) {
-        throw new \InvalidArgumentException("File " . $pathToFile1 . " not exist!");
-    }
-
-    if (!file_exists($pathToFile2)) {
-        throw new \InvalidArgumentException("File " . $pathToFile2 . " not exist!");
-    }
-
-    $data1 = getDataFromFile($pathToFile1);
-    $data2 = getDataFromFile($pathToFile2);
-
     $data = Collection\union(array_keys($data1), array_keys($data2));
 
     $diff = array_map(function ($key) use ($data1, $data2) {
@@ -87,6 +76,10 @@ function buildReport($reportFormat, $diff)
 
 function getDataFromFile($pathToFile)
 {
+    if (!file_exists($pathToFile)) {
+        throw new \InvalidArgumentException("File " . $pathToFile . " not exist!");
+    }
+
     $extension = pathinfo($pathToFile, PATHINFO_EXTENSION);
     $fileContent = file_get_contents($pathToFile);
 

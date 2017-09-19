@@ -4,6 +4,7 @@ namespace Differ\Tests;
 
 use \PHPUnit\Framework\TestCase;
 use \Differ\genDiff;
+use \Differ\getDataFromFile;
 
 class DifferTest extends TestCase
 {
@@ -12,15 +13,15 @@ class DifferTest extends TestCase
     */
     public function testGenDiffWithUnknownReportFormat()
     {
-        \Differ\genDiff('BIN', __DIR__ . '/fixtures/before.json', __DIR__ . '/fixtures/after.json');
+        \Differ\genDiff('BIN', array(), array());
     }
 
     /**
      * @expectedException \InvalidArgumentException
     */
-    public function testGenDiffWithNotExistingFiles()
+    public function testGetDataFromFileWithNotExistingFile()
     {
-        \Differ\genDiff('JSON', 'file1', 'file2');
+        \Differ\getDataFromFile('no_exists');
     }
 
     public function testGenDiffWithSampleJsonFiles()
@@ -28,6 +29,9 @@ class DifferTest extends TestCase
         $beforeJsonFilePath = __DIR__ . "/fixtures/before.json";
         $afterJsonFilePath = __DIR__ . "/fixtures/after.json";
 
+        $data1 = \Differ\getDataFromFile($beforeJsonFilePath);
+        $data2 = \Differ\getDataFromFile($afterJsonFilePath);
+
         $fileDifference = <<<EOL
 {
     host: hexlet.io
@@ -37,13 +41,16 @@ class DifferTest extends TestCase
   + verbose: true
 }
 EOL;
-        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
+        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $data1, $data2));
     }
 
     public function testGenDiffWithSampleYamlFiles()
     {
-        $beforeJsonFilePath = __DIR__ . "/fixtures/before.yml";
-        $afterJsonFilePath = __DIR__ . "/fixtures/after.yml";
+        $beforeYamlFilePath = __DIR__ . "/fixtures/before.yml";
+        $afterYamlFilePath = __DIR__ . "/fixtures/after.yml";
+
+        $data1 = \Differ\getDataFromFile($beforeYamlFilePath);
+        $data2 = \Differ\getDataFromFile($afterYamlFilePath);
 
         $fileDifference = <<<EOL
 {
@@ -54,6 +61,6 @@ EOL;
   + verbose: true
 }
 EOL;
-        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
+        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $data1, $data2));
     }
 }
