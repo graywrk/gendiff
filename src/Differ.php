@@ -2,6 +2,8 @@
 
 namespace Differ;
 
+use Funct\Collection;
+
 function genDiff($reportFormat, $pathToFile1, $pathToFile2)
 {
     if (!file_exists($pathToFile1)) {
@@ -15,26 +17,32 @@ function genDiff($reportFormat, $pathToFile1, $pathToFile2)
     $data1 = getDataFromFile($pathToFile1);
     $data2 = getDataFromFile($pathToFile2);
 
-    $diff = array();
+    $data = Collection\union(array_keys($data1), array_keys($data2));
 
-    foreach ($data1 as $k => $v) {
-        if (array_key_exists($k, $data2)) {
-            if ($v === $data2[$k]) {
-                $diff[] = array('key' => $k, 'value' => convertToString($v), 'state' => 'UNCHANGED');
+    $diff = array_map(function ($key) use ($data1, $data2) {
+        $convertToString = function ($value) {
+            if (is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            }
+
+            return $value;
+        };
+
+        if (array_key_exists($key, $data1)) {
+            if (array_key_exists($key, $data2)) {
+                if ($data1[$key] === $data2[$key]) {
+                    return array('key' => $key, 'value' => $convertToString($data1[$key]), 'state' => 'UNCHANGED');
+                } else {
+                    return array('key' => $key, 'value' => $convertToString($data2[$key]),
+                                 'old_value' => $convertToString($data1[$key]), 'state' => 'CHANGED');
+                }
             } else {
-                $diff[] = array('key' => $k, 'value' => convertToString($data2[$k]), 'state' => 'ADDED');
-                $diff[] = array('key' => $k, 'value' => convertToString($v), 'state' => 'DELETED');
+                return array('key' => $key, 'value' => $convertToString($data1[$key]), 'state' => 'DELETED');
             }
         } else {
-            $diff[] = array('key' => $k, 'value' => convertToString($v, true), 'state' => 'DELETED');
+            return array('key' => $key, 'value' => $convertToString($data2[$key]), 'state' => 'ADDED');
         }
-    }
-
-    foreach ($data2 as $k => $v) {
-        if (!array_key_exists($k, $data1)) {
-            $diff[] = array('key' => $k, 'value' => convertToString($v, true), 'state' => 'ADDED');
-        }
-    }
+    }, $data);
 
     return buildReport($reportFormat, $diff);
 }
@@ -46,35 +54,35 @@ function buildReport($reportFormat, $diff)
     }
 
     if ($reportFormat === 'pretty') {
-        $report = "{\n";
-        foreach ($diff as $item) {
+        $report = array_reduce($diff, function ($report, $item) {
             switch ($item['state']) {
                 case 'UNCHANGED':
                     $report .= str_repeat(' ', 4);
+                    $report .= $item['key'] . ": " . $item['value'] . "\n";
                     break;
                 case 'ADDED':
                     $report .= str_repeat(' ', 2) . '+ ';
+                    $report .= $item['key'] . ": " . $item['value'] . "\n";
                     break;
                 case 'DELETED':
                     $report .= str_repeat(' ', 2) .  '- ';
+                    $report .= $item['key'] . ": " . $item['value'] . "\n";
+                    break;
+                case 'CHANGED':
+                    $report .= str_repeat(' ', 2) . '+ ';
+                    $report .= $item['key'] . ": " . $item['value'] . "\n";
+                    $report .= str_repeat(' ', 2) .  '- ';
+                    $report .= $item['key'] . ": " . $item['old_value'] . "\n";
                     break;
             }
-            $report .= $item['key'] . ": " . $item['value'] . "\n";
-        }
+
+            return $report;
+        }, "{\n");
 
         $report .= "}";
     }
 
     return $report;
-}
-
-function convertToString($value)
-{
-    if (is_bool($value)) {
-        $value = $value ? 'true' : 'false';
-    }
-
-    return $value;
 }
 
 function getDataFromFile($pathToFile)
