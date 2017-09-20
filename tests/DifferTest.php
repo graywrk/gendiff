@@ -4,7 +4,6 @@ namespace Differ\Tests;
 
 use \PHPUnit\Framework\TestCase;
 use \Differ\genDiff;
-use \Differ\getDataFromFile;
 
 class DifferTest extends TestCase
 {
@@ -94,5 +93,23 @@ EOL;
 }
 EOL;
         $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
+    }
+
+    public function testGenDiffWithPlainOutputFormat()
+    {
+        $beforeJsonFilePath = __DIR__ . "/fixtures/beforeWithNested.json";
+        $afterJsonFilePath = __DIR__ . "/fixtures/afterWithNested.json";
+
+        $fileDifference = <<<EOL
+Property 'common.setting2' was removed
+Property 'common.setting6' was removed
+Property 'common.setting4' was added with value: 'blah blah'
+Property 'common.setting5' was added with value: 'complex value'
+Property group1.baz was changed. From 'bas' to 'bars'
+Property 'group2' was removed
+Property 'group3' was added with value: 'complex value'
+
+EOL;
+        $this->assertEquals($fileDifference, \Differ\genDiff('plain', $beforeJsonFilePath, $afterJsonFilePath));
     }
 }
