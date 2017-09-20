@@ -22,7 +22,9 @@ function generateAST($data1, $data2)
         if (array_key_exists($key, $data1)) {
             if (array_key_exists($key, $data2)) {
                 if (is_array($data1[$key]) && is_array($data2[$key])) {
-                    $acc[] = array('key' => $key, 'state' => 'NESTED', 'value' => generateAST($data1[$key], $data2[$key]));
+                    $acc[] = array('key' => $key,
+                                   'state' => 'NESTED',
+                                   'value' => generateAST($data1[$key], $data2[$key]));
                 } else {
                     if ($data1[$key] === $data2[$key]) {
                         $acc[] = array('key' => $key, 'state' => 'UNCHANGED', 'value' => $data1[$key]);
@@ -46,7 +48,7 @@ function convertToStringToPrettyReport($value, $depth)
 {
     if (is_bool($value)) {
         $result = $value ? 'true' : 'false';
-    } else if (is_array($value)) {
+    } elseif (is_array($value)) {
         // $value = json_encode($value, JSON_PRETTY_PRINT);
         $result = "{\n";
         $result .= array_reduce(array_keys($value), function ($acc, $key) use ($depth, $value) {
@@ -60,7 +62,7 @@ function convertToStringToPrettyReport($value, $depth)
     }
 
     return $result;
-};
+}
 
 function buildReport($reportFormat, $AST)
 {
@@ -73,26 +75,39 @@ function buildReport($reportFormat, $AST)
     }
 }
 
-function reportPretty($AST, $depth=0)
+function reportPretty($AST, $depth = 0)
 {
     return array_reduce($AST, function ($report, $item) use ($depth) {
         switch ($item['state']) {
             case 'NESTED':
                 $report .= str_repeat(' ', 4 * $depth + 4);
-                $report .= "\"" . $item['key'] . "\": {\n" . reportPretty($item['value'], $depth + 1);
+                $report .= "\""
+                        . $item['key']
+                        . "\": {\n"
+                        . reportPretty($item['value'], $depth + 1);
                 $report .= str_repeat(' ', 4 * $depth + 4) . "}\n";
                 break;
             case 'UNCHANGED':
                 $report .= str_repeat(' ', 4 * $depth + 4);
-                $report .= "\"" . $item['key'] . "\": "  . convertToStringToPrettyReport($item['value'], $depth + 1) . "\n";
+                $report .= "\""
+                        . $item['key']
+                        . "\": "
+                        . convertToStringToPrettyReport($item['value'], $depth + 1)
+                        . "\n";
                 break;
             case 'ADDED':
                 $report .= str_repeat(' ', 4 * $depth + 2) . '+ ';
-                $report .= "\"" . $item['key'] . "\": " . convertToStringToPrettyReport($item['value'], $depth + 1) . "\n";
+                $report .= "\""
+                        . $item['key'] . "\": "
+                        . convertToStringToPrettyReport($item['value'], $depth + 1)
+                        . "\n";
                 break;
             case 'DELETED':
                 $report .= str_repeat(' ', 4 * $depth + 2) .  '- ';
-                $report .= "\"" . $item['key'] . "\": " . convertToStringToPrettyReport($item['value'], $depth + 1) . "\n";
+                $report .= "\""
+                        . $item['key'] . "\": "
+                        . convertToStringToPrettyReport($item['value'], $depth + 1)
+                        . "\n";
                 break;
         }
 
