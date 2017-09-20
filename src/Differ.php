@@ -4,74 +4,100 @@ namespace Differ;
 
 use Funct\Collection;
 
-function genDiff($reportFormat, $data1, $data2)
+function genDiff($reportFormat, $pathToFile1, $pathToFile2)
 {
-    $data = Collection\union(array_keys($data1), array_keys($data2));
+    $data1 = getDataFromFile($pathToFile1);
+    $data2 = getDataFromFile($pathToFile2);
 
-    $diff = array_map(function ($key) use ($data1, $data2) {
-        $convertToString = function ($value) {
-            if (is_bool($value)) {
-                $value = $value ? 'true' : 'false';
-            }
+    $AST = generateAST($data1, $data2);
 
-            return $value;
-        };
-
-        if (array_key_exists($key, $data1)) {
-            if (array_key_exists($key, $data2)) {
-                if ($data1[$key] === $data2[$key]) {
-                    return array('key' => $key, 'value' => $convertToString($data1[$key]), 'state' => 'UNCHANGED');
-                } else {
-                    return array('key' => $key, 'value' => $convertToString($data2[$key]),
-                                 'old_value' => $convertToString($data1[$key]), 'state' => 'CHANGED');
-                }
-            } else {
-                return array('key' => $key, 'value' => $convertToString($data1[$key]), 'state' => 'DELETED');
-            }
-        } else {
-            return array('key' => $key, 'value' => $convertToString($data2[$key]), 'state' => 'ADDED');
-        }
-    }, $data);
-
-    return buildReport($reportFormat, $diff);
+    return buildReport($reportFormat, $AST);
 }
 
-function buildReport($reportFormat, $diff)
+function generateAST($data1, $data2)
 {
-    if (!in_array($reportFormat, array('pretty'))) {
-        throw new \InvalidArgumentException("Unknown report format: " . $reportFormat . "!");
-    }
+    $keys = Collection\union(array_keys($data1), array_keys($data2));
 
-    if ($reportFormat === 'pretty') {
-        $report = array_reduce($diff, function ($report, $item) {
-            switch ($item['state']) {
-                case 'UNCHANGED':
-                    $report .= str_repeat(' ', 4);
-                    $report .= $item['key'] . ": " . $item['value'] . "\n";
-                    break;
-                case 'ADDED':
-                    $report .= str_repeat(' ', 2) . '+ ';
-                    $report .= $item['key'] . ": " . $item['value'] . "\n";
-                    break;
-                case 'DELETED':
-                    $report .= str_repeat(' ', 2) .  '- ';
-                    $report .= $item['key'] . ": " . $item['value'] . "\n";
-                    break;
-                case 'CHANGED':
-                    $report .= str_repeat(' ', 2) . '+ ';
-                    $report .= $item['key'] . ": " . $item['value'] . "\n";
-                    $report .= str_repeat(' ', 2) .  '- ';
-                    $report .= $item['key'] . ": " . $item['old_value'] . "\n";
-                    break;
+    return array_reduce($keys, function ($acc, $key) use ($data1, $data2) {
+        if (array_key_exists($key, $data1)) {
+            if (array_key_exists($key, $data2)) {
+                if (is_array($data1[$key]) && is_array($data2[$key])) {
+                    $acc[] = array('key' => $key, 'state' => 'NESTED', 'value' => generateAST($data1[$key], $data2[$key]));
+                } else {
+                    if ($data1[$key] === $data2[$key]) {
+                        $acc[] = array('key' => $key, 'state' => 'UNCHANGED', 'value' => $data1[$key]);
+                    } else {
+                        $acc[] = array('key' => $key, 'state' => 'ADDED', 'value' => $data2[$key]);
+                        $acc[] = array('key' => $key, 'state' => 'DELETED', 'value' => $data1[$key]);
+                    }
+                }
+            } else {
+                $acc[] = array('key' => $key, 'state' => 'DELETED', 'value' => $data1[$key]);
             }
+        } else {
+            $acc[] = array('key' => $key, 'state' => 'ADDED', 'value' => $data2[$key]);
+        }
 
-            return $report;
-        }, "{\n");
+        return $acc;
+    }, []);
+}
 
-        $report .= "}";
+function convertToStringToPrettyReport($value, $depth)
+{
+    if (is_bool($value)) {
+        $result = $value ? 'true' : 'false';
+    } else if (is_array($value)) {
+        // $value = json_encode($value, JSON_PRETTY_PRINT);
+        $result = "{\n";
+        $result .= array_reduce(array_keys($value), function ($acc, $key) use ($depth, $value) {
+            $acc .= str_repeat(" ", 4 * $depth + 4);
+            $acc .=  "\"" . $key . "\": \"" . $value[$key] . "\"\n";
+            return $acc;
+        }, "");
+        $result .= str_repeat(" ", 4 * ($depth - 1) + 4) . "}";
+    } else {
+        $result = "\"" . $value . "\"";
     }
 
-    return $report;
+    return $result;
+};
+
+function buildReport($reportFormat, $AST)
+{
+    switch ($reportFormat) {
+        case 'pretty':
+            return "{\n" . reportPretty($AST) . "}";
+            break;
+        default:
+            throw new \InvalidArgumentException("Unknown report format: " . $reportFormat . "!");
+    }
+}
+
+function reportPretty($AST, $depth=0)
+{
+    return array_reduce($AST, function ($report, $item) use ($depth) {
+        switch ($item['state']) {
+            case 'NESTED':
+                $report .= str_repeat(' ', 4 * $depth + 4);
+                $report .= "\"" . $item['key'] . "\": {\n" . reportPretty($item['value'], $depth + 1);
+                $report .= str_repeat(' ', 4 * $depth + 4) . "}\n";
+                break;
+            case 'UNCHANGED':
+                $report .= str_repeat(' ', 4 * $depth + 4);
+                $report .= "\"" . $item['key'] . "\": "  . convertToStringToPrettyReport($item['value'], $depth + 1) . "\n";
+                break;
+            case 'ADDED':
+                $report .= str_repeat(' ', 4 * $depth + 2) . '+ ';
+                $report .= "\"" . $item['key'] . "\": " . convertToStringToPrettyReport($item['value'], $depth + 1) . "\n";
+                break;
+            case 'DELETED':
+                $report .= str_repeat(' ', 4 * $depth + 2) .  '- ';
+                $report .= "\"" . $item['key'] . "\": " . convertToStringToPrettyReport($item['value'], $depth + 1) . "\n";
+                break;
+        }
+
+        return $report;
+    }, "");
 }
 
 function getDataFromFile($pathToFile)

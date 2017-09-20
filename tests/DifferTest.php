@@ -13,7 +13,10 @@ class DifferTest extends TestCase
     */
     public function testGenDiffWithUnknownReportFormat()
     {
-        \Differ\genDiff('BIN', array(), array());
+        $beforeJsonFilePath = __DIR__ . "/fixtures/before.json";
+        $afterJsonFilePath = __DIR__ . "/fixtures/after.json";
+
+        \Differ\genDiff('BIN', $beforeJsonFilePath, $afterJsonFilePath);
     }
 
     /**
@@ -21,7 +24,7 @@ class DifferTest extends TestCase
     */
     public function testGetDataFromFileWithNotExistingFile()
     {
-        \Differ\getDataFromFile('no_exists');
+        \Differ\genDiff('pretty', 'no_exist_file_1', 'no_exist_file_2');
     }
 
     public function testGenDiffWithSampleJsonFiles()
@@ -29,19 +32,16 @@ class DifferTest extends TestCase
         $beforeJsonFilePath = __DIR__ . "/fixtures/before.json";
         $afterJsonFilePath = __DIR__ . "/fixtures/after.json";
 
-        $data1 = \Differ\getDataFromFile($beforeJsonFilePath);
-        $data2 = \Differ\getDataFromFile($afterJsonFilePath);
-
         $fileDifference = <<<EOL
 {
-    host: hexlet.io
-  + timeout: 20
-  - timeout: 50
-  - proxy: 123.234.53.22
-  + verbose: true
+    "host": "hexlet.io"
+  + "timeout": "20"
+  - "timeout": "50"
+  - "proxy": "123.234.53.22"
+  + "verbose": true
 }
 EOL;
-        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $data1, $data2));
+        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
     }
 
     public function testGenDiffWithSampleYamlFiles()
@@ -49,18 +49,50 @@ EOL;
         $beforeYamlFilePath = __DIR__ . "/fixtures/before.yml";
         $afterYamlFilePath = __DIR__ . "/fixtures/after.yml";
 
-        $data1 = \Differ\getDataFromFile($beforeYamlFilePath);
-        $data2 = \Differ\getDataFromFile($afterYamlFilePath);
+        $fileDifference = <<<EOL
+{
+    "host": "hexlet.io"
+  + "timeout": "20"
+  - "timeout": "50"
+  - "proxy": "123.234.53.22"
+  + "verbose": true
+}
+EOL;
+        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeYamlFilePath, $afterYamlFilePath));
+    }
+
+    public function testGenDiffWithSampleNestedJsonFiles()
+    {
+        $beforeJsonFilePath = __DIR__ . "/fixtures/beforeWithNested.json";
+        $afterJsonFilePath = __DIR__ . "/fixtures/afterWithNested.json";
 
         $fileDifference = <<<EOL
 {
-    host: hexlet.io
-  + timeout: 20
-  - timeout: 50
-  - proxy: 123.234.53.22
-  + verbose: true
+    "common": {
+        "setting1": "Value 1"
+      - "setting2": "200"
+        "setting3": true
+      - "setting6": {
+            "key": "value"
+        }
+      + "setting4": "blah blah"
+      + "setting5": {
+            "key5": "value5"
+        }
+    }
+    "group1": {
+      + "baz": "bars"
+      - "baz": "bas"
+        "foo": "bar"
+    }
+  - "group2": {
+        "abc": "12345"
+    }
+  + "group3": {
+        "fee": "100500"
+    }
 }
 EOL;
-        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $data1, $data2));
+        $this->assertEquals($fileDifference, \Differ\genDiff('pretty', $beforeJsonFilePath, $afterJsonFilePath));
     }
 }

@@ -24,9 +24,7 @@ DOC;
 $args = \Docopt::handle($doc);
 
 try {
-    $data1 = \Differ\getDataFromFile($args['<firstFile>']);
-    $data2 = \Differ\getDataFromFile($args['<secondFile>']);
-    $diff = \Differ\genDiff($args['--format'], $data1, $data2);
+    $diff = \Differ\genDiff($args['--format'], $args['<firstFile>'], $args['<secondFile>']);
     print_r($diff . "\n");
 } catch (Exception $e) {
     echo $e->getMessage() . "\n";
