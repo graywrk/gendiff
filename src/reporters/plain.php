@@ -1,6 +1,6 @@
 <?php
 
-namespace Differ\Reports\Plain;
+namespace Differ\Reporters\Plain;
 
 function report($AST, $propertyName = '')
 {

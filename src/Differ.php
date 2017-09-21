@@ -48,13 +48,13 @@ function buildReport($reportFormat, $AST)
 {
     switch ($reportFormat) {
         case 'pretty':
-            return "{\n" . Reports\Pretty\report($AST) . "}";
+            return "{\n" . Reporters\Pretty\report($AST) . "}";
             break;
         case 'plain':
-            return Reports\Plain\report($AST);
+            return Reporters\Plain\report($AST);
             break;
         case 'json':
-            return Reports\Json\report($AST);
+            return Reporters\Json\report($AST);
             break;
         default:
             throw new \InvalidArgumentException("Unknown report format: " . $reportFormat . "!");

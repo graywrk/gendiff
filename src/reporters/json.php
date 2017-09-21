@@ -1,6 +1,6 @@
 <?php
 
-namespace Differ\Reports\Json;
+namespace Differ\Reporters\Json;
 
 function report($AST)
 {

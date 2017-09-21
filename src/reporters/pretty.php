@@ -1,6 +1,6 @@
 <?php
 
-namespace Differ\Reports\Pretty;
+namespace Differ\Reporters\Pretty;
 
 function report($AST, $depth = 0)
 {
