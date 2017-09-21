@@ -23,21 +23,21 @@ function generateAST($data1, $data2)
             if (array_key_exists($key, $data2)) {
                 if (is_array($data1[$key]) && is_array($data2[$key])) {
                     $acc[] = array('key' => $key,
-                                   'state' => 'NESTED',
+                                   'type' => 'NESTED',
                                    'value' => generateAST($data1[$key], $data2[$key]));
                 } else {
                     if ($data1[$key] === $data2[$key]) {
-                        $acc[] = array('key' => $key, 'state' => 'UNCHANGED', 'value' => $data1[$key]);
+                        $acc[] = array('key' => $key, 'type' => 'UNCHANGED', 'value' => $data1[$key]);
                     } else {
-                        $acc[] = array('key' => $key, 'state' => 'CHANGED', 'value' => $data2[$key],
+                        $acc[] = array('key' => $key, 'type' => 'CHANGED', 'value' => $data2[$key],
                                        'old_value' => $data1[$key]);
                     }
                 }
             } else {
-                $acc[] = array('key' => $key, 'state' => 'DELETED', 'value' => $data1[$key]);
+                $acc[] = array('key' => $key, 'type' => 'DELETED', 'value' => $data1[$key]);
             }
         } else {
-            $acc[] = array('key' => $key, 'state' => 'ADDED', 'value' => $data2[$key]);
+            $acc[] = array('key' => $key, 'type' => 'ADDED', 'value' => $data2[$key]);
         }
 
         return $acc;

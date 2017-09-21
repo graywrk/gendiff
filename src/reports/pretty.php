@@ -5,7 +5,7 @@ namespace Differ\Reports\Pretty;
 function report($AST, $depth = 0)
 {
     return array_reduce($AST, function ($report, $item) use ($depth) {
-        switch ($item['state']) {
+        switch ($item['type']) {
             case 'NESTED':
                 $report .= str_repeat(' ', 4 * $depth + 4);
                 $report .= "\""

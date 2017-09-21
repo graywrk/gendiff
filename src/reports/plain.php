@@ -12,7 +12,7 @@ function report($AST, $propertyName = '')
         }
         $propertyValue = $item['value'];
 
-        switch ($item['state']) {
+        switch ($item['type']) {
             case 'NESTED':
                 $report .= report($propertyValue, $propertyName);
                 break;
