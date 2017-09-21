@@ -17,25 +17,14 @@ function report($AST, $propertyName = '')
                 break;
             case 'ADDED':
                 $propertyValue = is_array($item['value']) ? 'complex value' : $item['value'];
-                $report .= "Property '"
-                        . $propertyName
-                        . "' was added with value: '"
-                        . $propertyValue
-                        . "'\n";
+                $report .= "Property '{$propertyName}' was added with value: '{$propertyValue}'\n";
                 break;
             case 'DELETED':
-                $report .= "Property '"
-                        . $propertyName
-                        . "' was removed"
-                        . "\n";
+                $report .= "Property '{$propertyName}' was removed\n";
                 break;
             case 'CHANGED':
-                $report .= "Property '"
-                        . $propertyName
-                        . "' was changed."
-                        . " From '" . $item['old_value'] . "'"
-                        . " to '" . $item['value'] . "'"
-                        . "\n";
+                $report .= "Property '{$propertyName}' was changed. " .
+                           "From '{$item['old_value']}' to '{$item['value']}'\n";
                 break;
         }
 

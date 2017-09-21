@@ -8,43 +8,35 @@ function report($AST, $depth = 0)
         switch ($item['type']) {
             case 'NESTED':
                 $report .= str_repeat(' ', 4 * $depth + 4);
-                $report .= "\""
-                        . $item['key']
-                        . "\": {\n"
+                $report .= "\"${item['key']}\": {\n"
                         . report($item['children'], $depth + 1);
                 $report .= str_repeat(' ', 4 * $depth + 4) . "}\n";
                 break;
             case 'UNCHANGED':
                 $report .= str_repeat(' ', 4 * $depth + 4);
-                $report .= "\""
-                        . $item['key']
-                        . "\": "
+                $report .= "\"{$item['key']}\": "
                         . convertToString($item['value'], $depth + 1)
                         . "\n";
                 break;
             case 'ADDED':
                 $report .= str_repeat(' ', 4 * $depth + 2) . '+ ';
-                $report .= "\""
-                        . $item['key'] . "\": "
+                $report .= "\"{$item['key']}\": "
                         . convertToString($item['value'], $depth + 1)
                         . "\n";
                 break;
             case 'DELETED':
                 $report .= str_repeat(' ', 4 * $depth + 2) .  '- ';
-                $report .= "\""
-                        . $item['key'] . "\": "
+                $report .= "\"{$item['key']}\": "
                         . convertToString($item['value'], $depth + 1)
                         . "\n";
                 break;
             case 'CHANGED':
                 $report .= str_repeat(' ', 4 * $depth + 2) . '+ ';
-                $report .= "\""
-                        . $item['key'] . "\": "
+                $report .= "\"{$item['key']}\": "
                         . convertToString($item['value'], $depth + 1)
                         . "\n";
                 $report .= str_repeat(' ', 4 * $depth + 2) .  '- ';
-                $report .= "\""
-                        . $item['key'] . "\": "
+                $report .= "\"{$item['key']}\": "
                         . convertToString($item['old_value'], $depth + 1)
                         . "\n";
                 break;
