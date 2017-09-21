@@ -15,7 +15,7 @@ function report($AST, $propertyName = '')
         switch ($item['state']) {
             case 'NESTED':
                 $report .= report($propertyValue, $propertyName);
-            break;
+                break;
             case 'ADDED':
                 $propertyValue = is_array($item['value']) ? 'complex value' : $item['value'];
                 $report .= "Property '"
@@ -23,13 +23,21 @@ function report($AST, $propertyName = '')
                         . "' was added with value: '"
                         . $propertyValue
                         . "'\n";
-            break;
+                break;
             case 'DELETED':
                 $report .= "Property '"
                         . $propertyName
                         . "' was removed"
                         . "\n";
-            break;
+                break;
+            case 'CHANGED':
+                $report .= "Property '"
+                        . $propertyName
+                        . "' was changed."
+                        . " From '" . $item['old_value'] . "'"
+                        . " to '" . $propertyValue . "'"
+                        . "\n";
+                break;
         }
 
         return $report;

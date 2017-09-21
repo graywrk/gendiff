@@ -36,6 +36,18 @@ function report($AST, $depth = 0)
                         . convertToString($item['value'], $depth + 1)
                         . "\n";
                 break;
+            case 'CHANGED':
+                $report .= str_repeat(' ', 4 * $depth + 2) . '+ ';
+                $report .= "\""
+                        . $item['key'] . "\": "
+                        . convertToString($item['value'], $depth + 1)
+                        . "\n";
+                $report .= str_repeat(' ', 4 * $depth + 2) .  '- ';
+                $report .= "\""
+                        . $item['key'] . "\": "
+                        . convertToString($item['old_value'], $depth + 1)
+                        . "\n";
+                break;
         }
 
         return $report;

@@ -29,8 +29,8 @@ function generateAST($data1, $data2)
                     if ($data1[$key] === $data2[$key]) {
                         $acc[] = array('key' => $key, 'state' => 'UNCHANGED', 'value' => $data1[$key]);
                     } else {
-                        $acc[] = array('key' => $key, 'state' => 'ADDED', 'value' => $data2[$key]);
-                        $acc[] = array('key' => $key, 'state' => 'DELETED', 'value' => $data1[$key]);
+                        $acc[] = array('key' => $key, 'state' => 'CHANGED', 'value' => $data2[$key],
+                                       'old_value' => $data1[$key]);
                     }
                 }
             } else {
