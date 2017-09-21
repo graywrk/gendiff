@@ -21,7 +21,7 @@ function generateAST($data1, $data2)
     return array_reduce($keys, function ($acc, $key) use ($data1, $data2) {
         if (array_key_exists($key, $data1)) {
             if (array_key_exists($key, $data2)) {
-                if (is_array($data1[$key]) && is_array($data2[$key])) {
+                if (isAssocArray($data1[$key]) && isAssocArray($data2[$key])) {
                     $acc[] = array('key' => $key,
                                    'type' => 'NESTED',
                                    'children' => generateAST($data1[$key], $data2[$key]));
@@ -71,4 +71,14 @@ function getDataFromFile($pathToFile)
     $fileContent = file_get_contents($pathToFile);
 
     return parser($extension, $fileContent);
+}
+
+// Считаем массив ассоциативным если в нем присутствуют ключи с типом отличным от int
+function isAssocArray($arr)
+{
+    if (!is_array($arr)) {
+        return false;
+    } else {
+        return in_array(false, array_map('is_integer', array_keys($arr)));
+    }
 }
