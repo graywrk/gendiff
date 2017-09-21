@@ -11,7 +11,7 @@ function report($AST, $depth = 0)
                 $report .= "\""
                         . $item['key']
                         . "\": {\n"
-                        . report($item['value'], $depth + 1);
+                        . report($item['children'], $depth + 1);
                 $report .= str_repeat(' ', 4 * $depth + 4) . "}\n";
                 break;
             case 'UNCHANGED':

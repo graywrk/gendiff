@@ -24,7 +24,7 @@ function generateAST($data1, $data2)
                 if (is_array($data1[$key]) && is_array($data2[$key])) {
                     $acc[] = array('key' => $key,
                                    'type' => 'NESTED',
-                                   'value' => generateAST($data1[$key], $data2[$key]));
+                                   'children' => generateAST($data1[$key], $data2[$key]));
                 } else {
                     if ($data1[$key] === $data2[$key]) {
                         $acc[] = array('key' => $key, 'type' => 'UNCHANGED', 'value' => $data1[$key]);

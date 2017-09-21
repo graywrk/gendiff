@@ -10,11 +10,10 @@ function report($AST, $propertyName = '')
         } else {
             $propertyName = $item['key'];
         }
-        $propertyValue = $item['value'];
 
         switch ($item['type']) {
             case 'NESTED':
-                $report .= report($propertyValue, $propertyName);
+                $report .= report($item['children'], $propertyName);
                 break;
             case 'ADDED':
                 $propertyValue = is_array($item['value']) ? 'complex value' : $item['value'];
@@ -35,7 +34,7 @@ function report($AST, $propertyName = '')
                         . $propertyName
                         . "' was changed."
                         . " From '" . $item['old_value'] . "'"
-                        . " to '" . $propertyValue . "'"
+                        . " to '" . $item['value'] . "'"
                         . "\n";
                 break;
         }
