@@ -53,6 +53,9 @@ function buildReport($reportFormat, $AST)
         case 'plain':
             return Reports\Plain\report($AST);
             break;
+        case 'json':
+            return Reports\Json\report($AST);
+            break;
         default:
             throw new \InvalidArgumentException("Unknown report format: " . $reportFormat . "!");
     }

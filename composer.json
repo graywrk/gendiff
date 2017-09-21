@@ -19,7 +19,8 @@
         "files": ["src/Differ.php",
                   "src/parsers.php",
                   "src/reports/pretty.php",
-                  "src/reports/plain.php"
+                  "src/reports/plain.php",
+                  "src/reports/json.php"
                  ]
     },
     "scripts": {
